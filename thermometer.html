@@ -1,0 +1,230 @@
+<html>
+  
+<head>
+  <title>Thermometer Lab</title>
+  
+</head>
+
+<body>
+  
+  <h1>Thermometer Lab</h1>
+  <div>
+    <svg version="1.1" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" height="50%" width="75%">
+      
+
+      <rect id="container" x="10" y="10" width="150" height="210" rx="15" />
+
+      <g id="glass">
+        <rect x="45" y="20" width="30" height="160" rx="15" />
+        <ellipse cx="60" cy="180" rx="30" ry="30" />
+        <rect x="46.5" y="22" width="27" height="165" rx="15" stroke="none" />
+
+      </g>
+      <g class="liquid">
+        <circle id="center" r="25" cx="60" cy="180"  stroke-width="3" fill="green"/>
+        <rect id="therm-height" x="47.5" y="30" width="25" height="150" rx="15" fill="green"/>
+       
+      </g>
+      <g id="highlight">
+        <path d=" M 49 163 A 20 20 0 1 1 40 177" fill="white" fill-opacity="0" stroke="white" />
+
+      </g>
+      <g id="tick_marks">
+        <rect x="80" y="150" width="10" height="3" stroke="black"></rect>
+        <text id="0" class="degree" x="92 " y="155">0°F</text>
+        
+        <rect x="80" y="138" width="10" height="3" stroke="black"></rect>
+        <text id="22" class="degree" x="92 " y="143">22°F</text>
+
+        <rect x="80" y="126" width="10" height="3" stroke="black"></rect>
+        <text id="44" class="degree" x="92 " y="131">44°F</text>
+
+        <rect x="80" y="114" width="10" height="3" stroke="black"></rect>
+        <text id="66" class="degree" x="92 " y="119">66°F</text>
+
+        <rect x="80" y="102" width="10" height="3" stroke="black"></rect>
+        <text id="88"class="degree" x="92 " y="107">88°F</text>
+
+        <rect x="80" y="90" width="10" height="3" stroke="black"></rect>
+        <text id="110"class="degree" x="92 " y="95">110°F</text>
+
+        <rect x="80" y="78" width="10" height="3" stroke="black"></rect>
+        <text id="132"class="degree" x="92 " y="83">132°F</text>
+
+        <rect x="80" y="66" width="10" height="3" stroke="black"></rect>
+        <text id="154"class="degree" x="92 " y="71">154°F</text>
+
+        <rect x="80" y="54" width="10" height="3" stroke="black"></rect>
+        <text id="176"class="degree" x="92 " y="59">176°F</text>
+
+        <rect x="80" y="42" width="10" height="3" stroke="black"></rect>
+        <text id="198"class="degree" x="92 " y="47">198°F</text>
+
+        <rect x="80" y="30" width="10" height="3" stroke="black"></rect>
+        <text id="212"class="degree" x="92" y="37">212°F</text> 
+      </g>
+      
+      <style>
+        #glass {
+          fill: #ffffff;
+          stroke: #cccccc;
+          stroke-width: 3;
+        }
+
+        #container {
+          fill: #ffffff;
+          stroke: #000000;
+          stroke-width: 5;
+        
+        }
+        #highlight{
+          stroke-width: 3px;
+        
+        } 
+        .degree{
+          font-size:12px;
+        }
+
+      </style>
+    </svg>
+    
+  </div>
+  <text>Slide to change temperature:</text>
+  <br>
+  <input id="slider" type="range" min="1" max="150" value="1">
+  <br>
+  <p>Please select the temperature scale:</p>
+  <input class="rad" type="radio" id="fahr" name="unit" value="fahr" checked>
+  <label for="fahr">Fahrenheit</label><br>
+  <input class="rad" type="radio" id="cels" name="unit" value="cels">
+  <label for="cels">Celsius</label><br>
+  
+
+  <script>
+    const cos = Math.cos;
+  const sin = Math.sin;
+  const π = Math.PI;
+  
+  const f_matrix_times = (( [[a,b], [c,d]], [x,y]) => [ a * x + b * y, c * x + d * y]);
+  const f_rotate_matrix = (x => [[cos(x),-sin(x)], [sin(x), cos(x)]]);
+  const f_vec_add = (([a1, a2], [b1, b2]) => [a1 + b1, a2 + b2]);
+  
+  const f_svg_ellipse_arc = (([cx,cy],[rx,ry], [t1, Δ], φ ) => {
+  /* [
+  returns a SVG path element that represent a ellipse.
+  cx,cy → center of ellipse
+  rx,ry → major minor radius
+  t1 → start angle, in radian.
+  Δ → angle to sweep, in radian. positive.
+  φ → rotation on the whole, in radian
+  URL: SVG Circle Arc http://xahlee.info/js/svg_circle_arc.html
+  Version 2019-06-19
+   ] */
+  Δ = Δ % (2*π);
+  const rotMatrix = f_rotate_matrix (φ);
+  const [sX, sY] = ( f_vec_add ( f_matrix_times ( rotMatrix, [rx * cos(t1), ry * sin(t1)] ), [cx,cy] ) );
+  const [eX, eY] = ( f_vec_add ( f_matrix_times ( rotMatrix, [rx * cos(t1+Δ), ry * sin(t1+Δ)] ), [cx,cy] ) );
+  const fA = ( (  Δ > π ) ? 1 : 0 );
+  const fS = ( (  Δ > 0 ) ? 1 : 0 );
+  const path_2wk2r = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path_2wk2r.setAttribute("d", "M " + sX + " " + sY + " A " + [ rx , ry , φ / (2*π) *360, fA, fS, eX, eY ].join(" "));
+  return path_2wk2r;
+  });
+  </script>
+
+  <script>
+  
+    var slider = document.getElementById("slider")
+   
+    var therm_height = document.getElementById("therm-height")
+    var center = document.getElementById("center")
+    
+    slider.oninput = function(){
+      var newval = (100-parseInt(this.value));
+      therm_height.setAttribute("height",100-parseInt(newval));
+      therm_height.setAttribute("y",parseInt(newval)+75);
+      console.log(this.value);
+      if(this.value >=1 && this.value < 49){
+        document.getElementById("therm-height").setAttribute("fill", "blue");
+        document.getElementById("center").setAttribute("fill", "blue");
+      }
+      if(this.value >=50 && this.value < 84){
+        document.getElementById("therm-height").setAttribute("fill", "orange");
+        document.getElementById("center").setAttribute("fill", "orange");
+      }
+      if(this.value >=85 ){
+        document.getElementById("therm-height").setAttribute("fill", "red");
+        document.getElementById("center").setAttribute("fill", "red");
+      }
+    }
+
+
+    var fahr = document.getElementById("fahr");
+    var cels= document.getElementById("cels");
+    //radio on change function
+    fahr.onchange=function(){
+
+    var temp0 = document.getElementById("0");
+    var temp1 = document.getElementById("22");
+    var temp2 = document.getElementById("44");
+    var temp3 = document.getElementById("66");
+    var temp4 = document.getElementById("88");
+    var temp5 = document.getElementById("110");
+    var temp6 = document.getElementById("132");
+    var temp7 = document.getElementById("154");
+    var temp8 = document.getElementById("176");
+    var temp9 = document.getElementById("198");
+    var temp10 = document.getElementById("212");
+    if(fahr.checked==true){
+      temp0.textContent="0°F";
+      temp1.textContent="22°F";
+      temp2.textContent="44°F";
+      temp3.textContent="66°F";
+      temp4.textContent="88°F";
+      temp5.textContent="110°F";
+      temp6.textContent="132°F";
+      temp7.textContent="154°F";
+      temp8.textContent="176°F";
+      temp9.textContent="198°F";
+      temp10.textContent="212°F";
+      console.log("fahr");
+    }
+    
+    
+
+}
+
+
+    cels.onchange=function(){
+
+    var temp0 = document.getElementById("0");
+    var temp1 = document.getElementById("22");
+    var temp2 = document.getElementById("44");
+    var temp3 = document.getElementById("66");
+    var temp4 = document.getElementById("88");
+    var temp5 = document.getElementById("110");
+    var temp6 = document.getElementById("132");
+    var temp7 = document.getElementById("154");
+    var temp8 = document.getElementById("176");
+    var temp9 = document.getElementById("198");
+    var temp10 = document.getElementById("212");
+    if(cels.checked==true){
+      temp0.textContent="-17.8°C";
+      temp1.textContent="-5.6°C";
+      temp2.textContent="6.7°C";
+      temp3.textContent="18.9°C";
+      temp4.textContent="31.1°C";
+      temp5.textContent="43.3°C";
+      temp6.textContent="55.6°C";
+      temp7.textContent="67.8°C";
+      temp8.textContent="80°C";
+      temp9.textContent="92.2°C";
+      temp10.textContent="100°C";
+
+      console.log("cels");
+    }
+  }
+  </script>
+</body>
+
+</html>
